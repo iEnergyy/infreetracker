@@ -92,6 +92,32 @@ No Stripe, no auto payment capture, no formal tax/legal invoicing, no multi-user
 
 This app is built with **Next.js** and **shadcn/ui**.
 
+### Database (Postgres + Drizzle)
+
+1. Copy env template and fill secrets:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Run Postgres locally (Docker one-liner):
+
+   ```bash
+   docker run --name cobroflow-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cobroflow -p 5432:5432 -d postgres:16
+   ```
+
+   Use a `DATABASE_URL` that matches the container (see `.env.example`).
+
+3. Apply migrations (Better Auth tables):
+
+   ```bash
+   pnpm db:migrate
+   ```
+
+   For schema prototyping only (no migration files), you can use `pnpm db:push` instead — prefer `db:migrate` for anything shared or deployed.
+
+Other scripts: `pnpm db:generate` (emit SQL from `db/schema`), `pnpm db:studio` (Drizzle Studio), `pnpm auth:generate` (regenerate `db/schema/auth.ts` after Better Auth plugin changes — uses `lib/auth.stub.ts`), `pnpm verify:phase1` (env + auth tables + Better Auth load).
+
 ### Add a shadcn component
 
 ```bash

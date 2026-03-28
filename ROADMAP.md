@@ -33,9 +33,9 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-1.1.1** Documented env vars: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (or app URL), plus any email provider vars if magic link enabled.
-- [ ] **AC-1.1.2** `pnpm`/`npm` script runs Drizzle migrations (or generate + migrate) without error against empty DB.
-- [ ] **AC-1.1.3** README or internal doc lists how to spin local Postgres (Docker one-liner acceptable).
+- [x] **AC-1.1.1** Documented env vars: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (or app URL), plus any email provider vars if magic link enabled.
+- [x] **AC-1.1.2** `pnpm`/`npm` script runs Drizzle migrations (or generate + migrate) without error against empty DB.
+- [x] **AC-1.1.3** README or internal doc lists how to spin local Postgres (Docker one-liner acceptable).
 
 ---
 
@@ -45,9 +45,9 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-1.2.1** Drizzle schema file(s) committed; types export for insert/select where used.
-- [ ] **AC-1.2.2** Migration applies cleanly on fresh DB after Better Auth tables exist (order: run Better Auth migrations or use generated schema from Better Auth docs).
-- [ ] **AC-1.2.3** Documented rule: all `user_id` FKs reference Better Auth `user.id` type.
+- [x] **AC-1.2.1** Drizzle schema file(s) committed; types export for insert/select where used.
+- [x] **AC-1.2.2** Migration applies cleanly on fresh DB after Better Auth tables exist (order: run Better Auth migrations or use generated schema from Better Auth docs).
+- [x] **AC-1.2.3** Documented rule: all `user_id` FKs reference Better Auth `user.id` type.
 
 ---
 
