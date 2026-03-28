@@ -59,9 +59,9 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-2.1.1** Better Auth handler mounted at documented path (e.g. `/api/auth/[...all]`).
-- [ ] **AC-2.1.2** Session creation persists in DB per Better Auth + Drizzle docs.
-- [ ] **AC-2.1.3** Invalid session returns 401 on a protected test route.
+- [x] **AC-2.1.1** Better Auth handler mounted at documented path (e.g. `/api/auth/[...all]`).
+- [x] **AC-2.1.2** Session creation persists in DB per Better Auth + Drizzle docs.
+- [x] **AC-2.1.3** Invalid session returns 401 on a protected test route.
 
 ---
 
@@ -71,10 +71,10 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-2.2.1** New user can register and land in authenticated state (session cookie set).
-- [ ] **AC-2.2.2** Sign-out clears session; subsequent dashboard request redirects to sign-in.
-- [ ] **AC-2.2.3** Wrong password / invalid magic link shows safe error (no user enumeration if policy requires).
-- [ ] **AC-2.2.4** Password policy documented (min length, etc.) and enforced by Better Auth config.
+- [x] **AC-2.2.1** New user can register and land in authenticated state (session cookie set).
+- [x] **AC-2.2.2** Sign-out clears session; subsequent dashboard request redirects to sign-in.
+- [x] **AC-2.2.3** Wrong password / invalid magic link shows safe error (no user enumeration if policy requires).
+- [x] **AC-2.2.4** Password policy documented (min length, etc.) and enforced by Better Auth config.
 
 ---
 
@@ -84,9 +84,9 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-2.3.1** Unauthenticated access to any dashboard route redirects to `/login` (or chosen path).
-- [ ] **AC-2.3.2** Authenticated user hitting `/login` redirects to dashboard (optional AC).
-- [ ] **AC-2.3.3** Session user `id` available in server code for scoping queries.
+- [x] **AC-2.3.1** Unauthenticated access to any dashboard route redirects to `/login` (or chosen path).
+- [x] **AC-2.3.2** Authenticated user hitting `/login` redirects to dashboard (optional AC).
+- [x] **AC-2.3.3** Session user `id` available in server code for scoping queries.
 
 ---
 
@@ -96,8 +96,8 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-2.4.1** Production deploy uses HTTPS-only session cookies.
-- [ ] **AC-2.4.2** Better Auth `baseURL` matches deployed origin to avoid cookie mismatch.
+- [x] **AC-2.4.1** Production deploy uses HTTPS-only session cookies.
+- [x] **AC-2.4.2** Better Auth `baseURL` matches deployed origin to avoid cookie mismatch.
 
 ---
 

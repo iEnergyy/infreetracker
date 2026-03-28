@@ -26,5 +26,16 @@ export function getBetterAuthSecret(): string {
 export function getBetterAuthUrl(): string {
   const url = readEnv("BETTER_AUTH_URL");
   if (!url) throw new Error("BETTER_AUTH_URL is required (e.g. http://localhost:3000)");
-  return url;
+  return url.replace(/\/$/, "");
+}
+
+/** Origins allowed for Better Auth CSRF / Origin checks. */
+export function getTrustedOrigins(): string[] {
+  const base = getBetterAuthUrl();
+  const origins = new Set<string>([base]);
+  if (process.env.NODE_ENV === "development") {
+    origins.add("http://localhost:3000");
+    origins.add("http://127.0.0.1:3000");
+  }
+  return [...origins];
 }

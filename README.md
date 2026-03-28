@@ -118,6 +118,16 @@ This app is built with **Next.js** and **shadcn/ui**.
 
 Other scripts: `pnpm db:generate` (emit SQL from `db/schema`), `pnpm db:studio` (Drizzle Studio), `pnpm auth:generate` (regenerate `db/schema/auth.ts` after Better Auth plugin changes — uses `lib/auth.stub.ts`), `pnpm verify:phase1` (env + auth tables + Better Auth load).
 
+### Authentication (Better Auth)
+
+- **Handler:** `GET|POST|… /api/auth/[...all]` → `lib/auth.ts` via `toNextJsHandler` (Node runtime).
+- **UI:** `/login`, `/register` (email + password). **Dashboard:** `/app/*` (layout requires a session; otherwise redirect to `/login`).
+- **Server session:** `getSession()` in `lib/session.ts` wraps `auth.api.getSession({ headers })` for RSC and route handlers.
+- **Smoke route:** `GET /api/protected/me` returns **401** without a valid session, **200** with `{ userId, email }`.
+- **Email verification (MVP):** not required — no `sendVerificationEmail` configured, so users can sign in immediately after sign-up. Add verification later when you wire an email provider.
+- **Password policy:** enforced in `lib/auth.ts` — **min 8**, **max 128** characters (aligned with Better Auth defaults).
+- **Production:** set `BETTER_AUTH_URL` to the **exact public origin** of the app (e.g. `https://your-domain.com`, no trailing slash). With `NODE_ENV=production`, session cookies use **`Secure`** (HTTPS only) and **`SameSite=Lax`**. `trustedOrigins` includes `BETTER_AUTH_URL` plus local dev hosts.
+
 ### Add a shadcn component
 
 ```bash
