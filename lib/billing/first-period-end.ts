@@ -1,10 +1,10 @@
 /**
- * Pure calendar math for the first billing period end (AC-5.1.2, seed for §6.1).
+ * Pure calendar math for billing period ends (AC-5.1.2, AC-6.1.1–6.1.2).
  * All dates are UTC calendar dates (YYYY-MM-DD); no DB.
  *
- * monthly: due = same calendar day next month; if that day does not exist (e.g. Jan 31 → Feb),
- * clamp to the last day of the target month (Feb 28/29).
- * custom_days: due = startDate + N calendar days (N = length of one period).
+ * monthly: next due = anchor + 1 calendar month; if that day does not exist (e.g. Jan 31 → Feb),
+ * clamp to the last day of the target month (Feb 28/29). Chaining preserves “billing day” when possible.
+ * custom_days: next due = anchor + N calendar days (N = length of one period).
  */
 
 export type BillingCycleForPeriod = "monthly" | "custom_days";
@@ -51,24 +51,50 @@ export function addCalendarDays(isoDate: string, days: number): string {
   return `${u.getUTCFullYear()}-${String(u.getUTCMonth() + 1).padStart(2, "0")}-${String(u.getUTCDate()).padStart(2, "0")}`;
 }
 
+function advanceOnePeriodFromAnchor(
+  anchorIsoDate: string,
+  billingCycle: BillingCycleForPeriod,
+  billingIntervalDays?: number | null,
+): { periodEndDate: string; currentPeriodEnd: Date } {
+  let periodEndDate: string;
+  if (billingCycle === "monthly") {
+    periodEndDate = addCalendarMonths(anchorIsoDate, 1);
+  } else {
+    const n = billingIntervalDays;
+    if (n == null || n < 1) {
+      throw new Error("billingIntervalDays is required and must be >= 1 for custom_days");
+    }
+    periodEndDate = addCalendarDays(anchorIsoDate, n);
+  }
+  return {
+    periodEndDate,
+    currentPeriodEnd: new Date(`${periodEndDate}T00:00:00.000Z`),
+  };
+}
+
 export function computeFirstPeriodEnd(input: {
   startDate: string;
   billingCycle: BillingCycleForPeriod;
   billingIntervalDays?: number | null;
 }): FirstPeriodEndResult {
-  let firstPeriodEndDate: string;
-  if (input.billingCycle === "monthly") {
-    firstPeriodEndDate = addCalendarMonths(input.startDate, 1);
-  } else {
-    const n = input.billingIntervalDays;
-    if (n == null || n < 1) {
-      throw new Error("billingIntervalDays is required and must be >= 1 for custom_days");
-    }
-    firstPeriodEndDate = addCalendarDays(input.startDate, n);
-  }
+  const { periodEndDate, currentPeriodEnd } = advanceOnePeriodFromAnchor(
+    input.startDate,
+    input.billingCycle,
+    input.billingIntervalDays,
+  );
+  return { firstPeriodEndDate: periodEndDate, currentPeriodEnd };
+}
 
-  return {
-    firstPeriodEndDate,
-    currentPeriodEnd: new Date(`${firstPeriodEndDate}T00:00:00.000Z`),
-  };
+/** Next period end after `periodEndDate` (same rules as first period; AC-6.1.1–6.1.2). */
+export function computeNextPeriodEnd(input: {
+  periodEndDate: string;
+  billingCycle: BillingCycleForPeriod;
+  billingIntervalDays?: number | null;
+}): { nextPeriodEndDate: string; currentPeriodEnd: Date } {
+  const { periodEndDate, currentPeriodEnd } = advanceOnePeriodFromAnchor(
+    input.periodEndDate,
+    input.billingCycle,
+    input.billingIntervalDays,
+  );
+  return { nextPeriodEndDate: periodEndDate, currentPeriodEnd };
 }

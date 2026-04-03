@@ -44,12 +44,28 @@ export default async function DashboardLayout({
             Subscriptions
           </Link>
           <Link
+            href="/app/invoices"
+            className={cn(
+              "text-muted-foreground hover:text-foreground rounded-md px-2 py-1 transition-colors",
+            )}
+          >
+            Invoices
+          </Link>
+          <Link
             href="/app/settings/api-keys"
             className={cn(
               "text-muted-foreground hover:text-foreground rounded-md px-2 py-1 transition-colors",
             )}
           >
             API keys
+          </Link>
+          <Link
+            href="/app/settings/webhooks"
+            className={cn(
+              "text-muted-foreground hover:text-foreground rounded-md px-2 py-1 transition-colors",
+            )}
+          >
+            Webhooks
           </Link>
         </nav>
       </header>

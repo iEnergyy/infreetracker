@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSubscriptionForSession } from "@/app/app/subscriptions/actions";
 import { SubscriptionEditForm } from "@/components/subscriptions/subscription-edit-form";
+import { SubscriptionGenerateInvoicesButton } from "@/components/subscriptions/subscription-generate-invoices-button";
 import { SubscriptionInvoiceTable } from "@/components/subscriptions/subscription-invoice-table";
 import { SubscriptionStatusBadge } from "@/components/subscriptions/subscription-status-badge";
 import { Button } from "@/components/ui/button";
@@ -79,8 +80,36 @@ export default async function SubscriptionDetailPage({ params }: PageProps) {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Invoice generation</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm">
+            <p className="text-muted-foreground">Last generated</p>
+            <p className="font-mono text-xs font-medium">
+              {sub.lastInvoiceCreatedAt ?? "—"}
+            </p>
+          </div>
+          <SubscriptionGenerateInvoicesButton
+            subscriptionId={sub.id}
+            disabled={sub.status === "blocked"}
+          />
+        </CardContent>
+      </Card>
+
       <div className="flex flex-col gap-3">
-        <h2 className="text-base font-medium">Invoices</h2>
+        <div>
+          <h2 className="text-base font-medium">Invoices</h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Use <span className="text-foreground font-medium">View</span> or the due date to open the full
+            invoice (record payment, payments list). You can also browse all invoices from{" "}
+            <Link href="/app/invoices" className="text-foreground underline">
+              Invoices
+            </Link>{" "}
+            in the header.
+          </p>
+        </div>
         <SubscriptionInvoiceTable invoices={sub.invoices} />
       </div>
 

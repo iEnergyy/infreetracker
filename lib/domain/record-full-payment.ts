@@ -1,7 +1,8 @@
 import { and, eq } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { invoices, payments } from "@/db/schema";
+import { invoices, payments, subscriptions } from "@/db/schema";
 import type * as schema from "@/db/schema";
+import { subscriptionStatusAfterFullPayment } from "@/lib/domain/subscription-status-after-payment";
 
 export type RecordFullPaymentErrorCode =
   | "INVOICE_NOT_FOUND"
@@ -26,7 +27,8 @@ function invoiceAmountToPaymentAmount(amount: string): string {
 }
 
 /**
- * MVP full payment only: inserts `payments` and sets invoice `paid` + `paid_at` in one transaction (AC-3.4.2).
+ * MVP full payment only: inserts `payments`, sets invoice `paid` + `paid_at`, and recalculates
+ * subscription status when applicable (AC-3.4.2, AC-7.1.3).
  */
 export async function recordFullPaymentInTransaction(
   database: NodePgDatabase<typeof schema>,
@@ -90,6 +92,31 @@ export async function recordFullPaymentInTransaction(
         updatedAt: new Date(),
       })
       .where(and(eq(invoices.id, input.invoiceId), eq(invoices.userId, input.userId)));
+
+    const [subRow] = await tx
+      .select()
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.id, invoiceRow.subscriptionId),
+          eq(subscriptions.userId, input.userId),
+        ),
+      )
+      .limit(1);
+
+    if (subRow) {
+      const patch = subscriptionStatusAfterFullPayment(subRow.status);
+      if (patch) {
+        await tx
+          .update(subscriptions)
+          .set({
+            status: patch.status,
+            blockedAt: patch.clearBlockedAt ? null : subRow.blockedAt,
+            updatedAt: new Date(),
+          })
+          .where(eq(subscriptions.id, subRow.id));
+      }
+    }
 
     return { ok: true, paymentId: payment.id };
   });

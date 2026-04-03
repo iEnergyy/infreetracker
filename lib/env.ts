@@ -2,6 +2,8 @@
  * Server-side environment accessors. Use from Route Handlers, Server Actions, and scripts.
  */
 
+import { createHash } from "node:crypto";
+
 function readEnv(name: string): string | undefined {
   const value = process.env[name];
   return value && value.length > 0 ? value : undefined;
@@ -43,4 +45,27 @@ export function getTrustedOrigins(): string[] {
 /** Optional global pepper concatenated before hashing API keys (see README). */
 export function getOptionalApiKeyPepper(): string {
   return readEnv("API_KEY_PEPPER") ?? "";
+}
+
+/** Shared secret for `/api/cron/*` (Bearer token). Min 16 chars; set in Vercel env for Cron jobs. */
+export function getCronSecret(): string {
+  const secret = readEnv("CRON_SECRET");
+  if (!secret || secret.length < 16) {
+    throw new Error("CRON_SECRET is required and must be at least 16 characters");
+  }
+  return secret;
+}
+
+/**
+ * Derives a 32-byte AES key from `WEBHOOK_SECRET_ENCRYPTION_KEY` for encrypting webhook signing
+ * secrets at rest (README Phase 3).
+ */
+export function getWebhookSecretEncryptionKeyBytes(): Buffer {
+  const raw = readEnv("WEBHOOK_SECRET_ENCRYPTION_KEY");
+  if (!raw || raw.length < 16) {
+    throw new Error(
+      "WEBHOOK_SECRET_ENCRYPTION_KEY is required and must be at least 16 characters",
+    );
+  }
+  return createHash("sha256").update(raw, "utf8").digest();
 }

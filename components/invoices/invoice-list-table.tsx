@@ -9,16 +9,19 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { SubscriptionInvoiceRow } from "@/app/app/subscriptions/actions";
+import type { InvoiceListItem } from "@/app/app/invoices/actions";
 
-interface SubscriptionInvoiceTableProps {
-  readonly invoices: SubscriptionInvoiceRow[];
+interface InvoiceListTableProps {
+  readonly invoices: InvoiceListItem[];
 }
 
-export function SubscriptionInvoiceTable({ invoices }: SubscriptionInvoiceTableProps) {
+export function InvoiceListTable({ invoices }: InvoiceListTableProps) {
   if (invoices.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm">No invoices yet for this subscription.</p>
+      <p className="text-muted-foreground text-sm">
+        No invoices yet. They appear when you create a subscription or when billing generates the next
+        period.
+      </p>
     );
   }
 
@@ -27,21 +30,22 @@ export function SubscriptionInvoiceTable({ invoices }: SubscriptionInvoiceTableP
       <TableHeader>
         <TableRow>
           <TableHead>Due date</TableHead>
+          <TableHead>Client</TableHead>
           <TableHead>Amount</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Paid at</TableHead>
-          <TableHead className="text-end w-[1%] whitespace-nowrap">Actions</TableHead>
+          <TableHead className="text-end">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {invoices.map((inv) => (
           <TableRow key={inv.id}>
-            <TableCell className="font-mono text-sm">
+            <TableCell className="font-mono text-sm">{inv.dueDate}</TableCell>
+            <TableCell>
               <Link
-                href={`/app/invoices/${inv.id}`}
+                href={`/app/clients/${inv.clientId}`}
                 className="text-foreground hover:underline"
               >
-                {inv.dueDate}
+                {inv.clientName}
               </Link>
             </TableCell>
             <TableCell>
@@ -52,12 +56,9 @@ export function SubscriptionInvoiceTable({ invoices }: SubscriptionInvoiceTableP
                 {inv.status}
               </Badge>
             </TableCell>
-            <TableCell className="text-muted-foreground text-sm">
-              {inv.paidAt ? new Date(inv.paidAt).toLocaleString() : "—"}
-            </TableCell>
             <TableCell className="text-end">
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/app/invoices/${inv.id}`}>View</Link>
+                <Link href={`/app/invoices/${inv.id}`}>View invoice</Link>
               </Button>
             </TableCell>
           </TableRow>

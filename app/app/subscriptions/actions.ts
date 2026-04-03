@@ -1,11 +1,13 @@
 "use server";
 
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, max } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { db } from "@/db";
 import { clients, invoices, subscriptions } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { createSubscriptionWithFirstInvoice } from "@/lib/domain/create-subscription-with-first-invoice";
+import { generateNextInvoiceForSubscription } from "@/lib/domain/generate-next-invoice";
 import { subscriptionCreateSchema, subscriptionUpdateSchema } from "@/lib/validation/subscriptions";
 
 export type FieldErrors = Record<string, string[]>;
@@ -57,6 +59,8 @@ export async function createSubscriptionAction(raw: unknown): Promise<
     return { ok: false, fieldErrors: {}, formError: result.message };
   }
 
+  revalidatePath("/app/subscriptions");
+  revalidatePath("/app/invoices");
   return { ok: true, subscriptionId: result.subscriptionId };
 }
 
@@ -112,6 +116,30 @@ export async function updateSubscriptionAction(raw: unknown): Promise<
   }
 
   return { ok: true };
+}
+
+export async function generateNextInvoiceForSubscriptionAction(
+  subscriptionId: string,
+): Promise<{ ok: true; created: boolean } | { ok: false; formError: string }> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return { ok: false, formError: "Unauthorized" };
+
+  const r = await generateNextInvoiceForSubscription(db, {
+    subscriptionId,
+    scopedUserId: session.user.id,
+  });
+
+  if (!r.ok) {
+    if (r.code === "FORBIDDEN") {
+      return { ok: false, formError: "Subscription not found" };
+    }
+    return { ok: false, formError: r.message };
+  }
+
+  revalidatePath(`/app/subscriptions/${subscriptionId}`);
+  revalidatePath("/app/subscriptions");
+  revalidatePath("/app/invoices");
+  return { ok: true, created: r.created };
 }
 
 export interface SubscriptionListItem {
@@ -193,6 +221,8 @@ export interface SubscriptionDetail {
   currentPeriodEnd: string;
   blockedAt: string | null;
   createdAt: string;
+  /** Max `invoices.created_at` for this subscription (AC-6.2.2). */
+  lastInvoiceCreatedAt: string | null;
   invoices: SubscriptionInvoiceRow[];
 }
 
@@ -229,6 +259,11 @@ export async function getSubscriptionForSession(subscriptionId: string): Promise
     .where(and(eq(invoices.subscriptionId, subscriptionId), eq(invoices.userId, session.user.id)))
     .orderBy(asc(invoices.dueDate), asc(invoices.createdAt));
 
+  const [invAgg] = await db
+    .select({ lastCreated: max(invoices.createdAt) })
+    .from(invoices)
+    .where(and(eq(invoices.subscriptionId, subscriptionId), eq(invoices.userId, session.user.id)));
+
   const s = row.sub;
 
   return {
@@ -246,6 +281,7 @@ export async function getSubscriptionForSession(subscriptionId: string): Promise
     currentPeriodEnd: s.currentPeriodEnd.toISOString(),
     blockedAt: s.blockedAt ? s.blockedAt.toISOString() : null,
     createdAt: s.createdAt.toISOString(),
+    lastInvoiceCreatedAt: invAgg?.lastCreated ? invAgg.lastCreated.toISOString() : null,
     invoices: invRows.map((inv) => ({
       id: inv.id,
       dueDate: formatPgDate(inv.dueDate),

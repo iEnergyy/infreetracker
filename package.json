@@ -18,7 +18,11 @@
     "verify:phase1": "tsx scripts/verify-phase1.ts",
     "verify:phase3": "tsx scripts/verify-phase3.ts",
     "verify:phase3-payment-tx": "tsx scripts/verify-phase3-payment-tx.ts",
-    "verify:phase5-subscription": "tsx scripts/verify-phase5-subscription-create.ts"
+    "verify:phase5-subscription": "tsx scripts/verify-phase5-subscription-create.ts",
+    "verify:phase6-invoices": "tsx scripts/verify-phase6-invoice-generation.ts",
+    "verify:phase7-payments": "tsx scripts/verify-phase7-payments.ts",
+    "test:billing": "tsx --test lib/billing/*.test.ts",
+    "test:phase7": "tsx --test lib/domain/subscription-status-after-payment.test.ts lib/webhooks/secret-crypto.test.ts"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.5.6",

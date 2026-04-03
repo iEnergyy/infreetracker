@@ -127,7 +127,8 @@ export const invoices = pgTable(
   },
   (t) => [
     uniqueIndex("invoices_user_id_id_unique").on(t.userId, t.id),
-    index("invoices_subscription_id_due_date_idx").on(t.subscriptionId, t.dueDate),
+    /** One invoice per subscription per period end (AC-6.1.3); replaces non-unique cron listing index. */
+    uniqueIndex("invoices_subscription_id_due_date_unique").on(t.subscriptionId, t.dueDate),
     foreignKey({
       columns: [t.userId, t.subscriptionId],
       foreignColumns: [subscriptions.userId, subscriptions.id],
