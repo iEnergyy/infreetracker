@@ -109,9 +109,9 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-3.1.1** Unique constraint on (`user_id`, `external_id`).
-- [ ] **AC-3.1.2** `external_id` format validated (e.g. slug alphanumeric + hyphen; document regex).
-- [ ] **AC-3.1.3** Cascade or restrict: deleting user is undefined for MVP — document “manual cleanup” or soft-delete later.
+- [x] **AC-3.1.1** Unique constraint on (`user_id`, `external_id`).
+- [x] **AC-3.1.2** `external_id` format validated (e.g. slug alphanumeric + hyphen; document regex).
+- [x] **AC-3.1.3** Cascade or restrict: deleting user is undefined for MVP — document “manual cleanup” or soft-delete later.
 
 ---
 
@@ -121,9 +121,9 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-3.2.1** `client_id` FK to `clients`; row only visible to owning `user_id`.
-- [ ] **AC-3.2.2** `grace_period_days` ≥ 0; `amount` > 0.
-- [ ] **AC-3.2.3** If `billing_cycle = custom_days`, `billing_interval_days` required and ≥ 1.
+- [x] **AC-3.2.1** `client_id` FK to `clients`; row only visible to owning `user_id`.
+- [x] **AC-3.2.2** `grace_period_days` ≥ 0; `amount` > 0.
+- [x] **AC-3.2.3** If `billing_cycle = custom_days`, `billing_interval_days` required and ≥ 1.
 
 ---
 
@@ -133,8 +133,8 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-3.3.1** Invoice `user_id` matches parent subscription’s user (enforced in app or trigger).
-- [ ] **AC-3.3.2** Index on (`subscription_id`, `due_date`) for cron and listing.
+- [x] **AC-3.3.1** Invoice `user_id` matches parent subscription’s user (enforced in app or trigger).
+- [x] **AC-3.3.2** Index on (`subscription_id`, `due_date`) for cron and listing.
 
 ---
 
@@ -144,7 +144,7 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-3.4.1** Payment `amount` matches invoice `amount` OR document partial payments policy (MVP: full pay only simplifies AC).
+- [x] **AC-3.4.1** Payment `amount` matches invoice `amount` OR document partial payments policy (MVP: full pay only simplifies AC).
 - [ ] **AC-3.4.2** Recording payment sets invoice `status = paid` and `paid_at` in same transaction.
 
 ---
@@ -155,8 +155,8 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-3.5.1** Costs listable and aggregatable per `client_id` per month.
-- [ ] **AC-3.5.2** `amount` ≥ 0.
+- [x] **AC-3.5.1** Costs listable and aggregatable per `client_id` per month.
+- [x] **AC-3.5.2** `amount` ≥ 0.
 
 ---
 
@@ -180,7 +180,7 @@ This document splits work into **microphases**. Each microphase has explicit **a
 **ACs**
 
 - [ ] **AC-3.7.1** URL must be HTTPS in production (validate on save).
-- [ ] **AC-3.7.2** Secret stored hashed or encrypted at rest (document choice).
+- [x] **AC-3.7.2** Secret stored hashed or encrypted at rest (document choice).
 
 ---
 

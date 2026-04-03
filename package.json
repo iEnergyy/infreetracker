@@ -11,11 +11,12 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "tsx scripts/db-migrate.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "auth:generate": "better-auth generate -y --config lib/auth.stub.ts --output db/schema/auth.ts",
-    "verify:phase1": "tsx scripts/verify-phase1.ts"
+    "verify:phase1": "tsx scripts/verify-phase1.ts",
+    "verify:phase3": "tsx scripts/verify-phase3.ts"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.5.6",

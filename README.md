@@ -108,15 +108,26 @@ This app is built with **Next.js** and **shadcn/ui**.
 
    Use a `DATABASE_URL` that matches the container (see `.env.example`).
 
-3. Apply migrations (Better Auth tables):
+3. Apply migrations (auth + domain tables):
 
    ```bash
    pnpm db:migrate
    ```
 
-   For schema prototyping only (no migration files), you can use `pnpm db:push` instead — prefer `db:migrate` for anything shared or deployed.
+   This runs [`scripts/db-migrate.ts`](scripts/db-migrate.ts) (same migrator as Drizzle, with clearer errors). For schema prototyping only (no migration files), you can use `pnpm db:push` instead — prefer `db:migrate` for anything shared or deployed.
 
-Other scripts: `pnpm db:generate` (emit SQL from `db/schema`), `pnpm db:studio` (Drizzle Studio), `pnpm auth:generate` (regenerate `db/schema/auth.ts` after Better Auth plugin changes — uses `lib/auth.stub.ts`), `pnpm verify:phase1` (env + auth tables + Better Auth load).
+   **Note:** Domain migration `0001` uses composite foreign keys; PostgreSQL requires a **unique** constraint on `(user_id, id)` on `clients`, `subscriptions`, and `invoices` before those FKs are added. If you ever regenerate `0001` with `pnpm db:generate`, confirm unique indexes appear **before** the composite `ALTER TABLE … ADD CONSTRAINT … FOREIGN KEY` statements (or the migration will fail).
+
+Other scripts: `pnpm db:generate` (emit SQL from `db/schema`), `pnpm db:studio` (Drizzle Studio), `pnpm auth:generate` (regenerate `db/schema/auth.ts` after Better Auth plugin changes — uses `lib/auth.stub.ts`), `pnpm verify:phase1` (env + auth tables + Better Auth load), `pnpm verify:phase3` (domain tables + enum types after migrations).
+
+### Domain schema rules (Phase 3)
+
+- **`clients.external_id`:** Must be **lowercase** and match `^[a-z0-9]+(?:-[a-z0-9]+)*$` (enforced in the database). Uniqueness is per owner: `(user_id, external_id)`.
+- **Deleting a `user` row:** Domain tables use **`ON DELETE RESTRICT`** on `user_id`. For MVP there is no cascade; removing a user requires **manual cleanup** of domain rows first (or a future soft-delete / admin flow).
+- **Payments (MVP):** **Full payment only** — when recording a payment, application code should require `payment.amount` to equal the invoice total and update `invoices.status` / `invoices.paid_at` in the **same transaction** (implemented with the payment API / server actions in a later phase).
+- **`costs`:** Modeled with a **`billing_month`** `date` (first of the month) plus index `(user_id, client_id, billing_month)` for monthly aggregation per client.
+- **API keys:** Only **`key_hash`** and **`prefix`** are stored; plain keys are shown once at creation and verified with the hash (implementation in the v1 API phase). **`revoked_at`** gates authorization (401 when set).
+- **Webhooks:** **`webhook_endpoints.url`** must use **HTTPS** in production — validate on create/update in application code (localhost `http` allowed in dev). The **`secret`** column stores **ciphertext** for signing material (e.g. **AES-GCM** with a dedicated env key such as `WEBHOOK_SECRET_ENCRYPTION_KEY`); decrypt only in the worker that dispatches signed webhooks — not plaintext at rest.
 
 ### Authentication (Better Auth)
 
