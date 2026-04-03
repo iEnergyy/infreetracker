@@ -118,16 +118,16 @@ This app is built with **Next.js** and **shadcn/ui**.
 
    **Note:** Domain migration `0001` uses composite foreign keys; PostgreSQL requires a **unique** constraint on `(user_id, id)` on `clients`, `subscriptions`, and `invoices` before those FKs are added. If you ever regenerate `0001` with `pnpm db:generate`, confirm unique indexes appear **before** the composite `ALTER TABLE … ADD CONSTRAINT … FOREIGN KEY` statements (or the migration will fail).
 
-Other scripts: `pnpm db:generate` (emit SQL from `db/schema`), `pnpm db:studio` (Drizzle Studio), `pnpm auth:generate` (regenerate `db/schema/auth.ts` after Better Auth plugin changes — uses `lib/auth.stub.ts`), `pnpm verify:phase1` (env + auth tables + Better Auth load), `pnpm verify:phase3` (domain tables + enum types after migrations).
+Other scripts: `pnpm db:generate` (emit SQL from `db/schema`), `pnpm db:studio` (Drizzle Studio), `pnpm auth:generate` (regenerate `db/schema/auth.ts` after Better Auth plugin changes — uses `lib/auth.stub.ts`), `pnpm verify:phase1` (env + auth tables + Better Auth load), `pnpm verify:phase3` (domain tables + enum types after migrations), `pnpm verify:phase3-payment-tx` (AC-3.4.2 — needs at least one `user` row).
 
 ### Domain schema rules (Phase 3)
 
 - **`clients.external_id`:** Must be **lowercase** and match `^[a-z0-9]+(?:-[a-z0-9]+)*$` (enforced in the database). Uniqueness is per owner: `(user_id, external_id)`.
 - **Deleting a `user` row:** Domain tables use **`ON DELETE RESTRICT`** on `user_id`. For MVP there is no cascade; removing a user requires **manual cleanup** of domain rows first (or a future soft-delete / admin flow).
-- **Payments (MVP):** **Full payment only** — when recording a payment, application code should require `payment.amount` to equal the invoice total and update `invoices.status` / `invoices.paid_at` in the **same transaction** (implemented with the payment API / server actions in a later phase).
+- **Payments (MVP):** **Full payment only** — use `recordFullPaymentInTransaction` in [`lib/domain/record-full-payment.ts`](lib/domain/record-full-payment.ts) so `payments` insert and invoice `paid` / `paid_at` run in **one transaction** (AC-3.4.2). Invoice UI / v1 API should call this helper.
 - **`costs`:** Modeled with a **`billing_month`** `date` (first of the month) plus index `(user_id, client_id, billing_month)` for monthly aggregation per client.
-- **API keys:** Only **`key_hash`** and **`prefix`** are stored; plain keys are shown once at creation and verified with the hash (implementation in the v1 API phase). **`revoked_at`** gates authorization (401 when set).
-- **Webhooks:** **`webhook_endpoints.url`** must use **HTTPS** in production — validate on create/update in application code (localhost `http` allowed in dev). The **`secret`** column stores **ciphertext** for signing material (e.g. **AES-GCM** with a dedicated env key such as `WEBHOOK_SECRET_ENCRYPTION_KEY`); decrypt only in the worker that dispatches signed webhooks — not plaintext at rest.
+- **API keys:** Only **`key_hash`** and **`prefix`** are stored; minting is under **`/app/settings/api-keys`** (plain key shown once). Verification uses **`lib/api-keys/hash.ts`** and **`lib/api-keys/verify-bearer.ts`**; **`GET /api/v1/me`** accepts `Authorization: Bearer …` for smoke tests. **`revoked_at`** gates authorization (401). Optional env **`API_KEY_PEPPER`** is concatenated before hashing (same value required for verify).
+- **Webhooks:** **`webhook_endpoints.url`** must use **HTTPS** in production — use **`assertValidWebhookEndpointUrl`** from [`lib/webhooks/validate-endpoint-url.ts`](lib/webhooks/validate-endpoint-url.ts) on create/update once §11.1 UI exists (localhost `http` allowed in dev). The **`secret`** column stores **ciphertext** for signing material (e.g. **AES-GCM** with a dedicated env key such as `WEBHOOK_SECRET_ENCRYPTION_KEY`); decrypt only in the worker that dispatches signed webhooks — not plaintext at rest.
 
 ### Authentication (Better Auth)
 
@@ -135,6 +135,7 @@ Other scripts: `pnpm db:generate` (emit SQL from `db/schema`), `pnpm db:studio` 
 - **UI:** `/login`, `/register` (email + password). **Dashboard:** `/app/*` (layout requires a session; otherwise redirect to `/login`).
 - **Server session:** `getSession()` in `lib/session.ts` wraps `auth.api.getSession({ headers })` for RSC and route handlers.
 - **Smoke route:** `GET /api/protected/me` returns **401** without a valid session, **200** with `{ userId, email }`.
+- **API key smoke route:** `GET /api/v1/me` with `Authorization: Bearer <api_key>` returns **200** `{ userId }` or **401** `{ error: "unauthorized" }`.
 - **Email verification (MVP):** not required — no `sendVerificationEmail` configured, so users can sign in immediately after sign-up. Add verification later when you wire an email provider.
 - **Password policy:** enforced in `lib/auth.ts` — **min 8**, **max 128** characters (aligned with Better Auth defaults).
 - **Production:** set `BETTER_AUTH_URL` to the **exact public origin** of the app (e.g. `https://your-domain.com`, no trailing slash). With `NODE_ENV=production`, session cookies use **`Secure`** (HTTPS only) and **`SameSite=Lax`**. `trustedOrigins` includes `BETTER_AUTH_URL` plus local dev hosts.

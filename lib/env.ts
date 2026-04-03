@@ -39,3 +39,8 @@ export function getTrustedOrigins(): string[] {
   }
   return [...origins];
 }
+
+/** Optional global pepper concatenated before hashing API keys (see README). */
+export function getOptionalApiKeyPepper(): string {
+  return readEnv("API_KEY_PEPPER") ?? "";
+}

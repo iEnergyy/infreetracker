@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { SignOutButton } from "@/components/sign-out-button";
+import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/session";
 
 export default async function AppHomePage() {
@@ -16,7 +18,12 @@ export default async function AppHomePage() {
           </code>
         </p>
       </div>
-      <SignOutButton />
+      <div className="flex flex-wrap gap-2">
+        <Button asChild variant="secondary">
+          <Link href="/app/clients">Clients</Link>
+        </Button>
+        <SignOutButton />
+      </div>
     </div>
   );
 }

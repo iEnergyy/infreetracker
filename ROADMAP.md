@@ -145,7 +145,7 @@ This document splits work into **microphases**. Each microphase has explicit **a
 **ACs**
 
 - [x] **AC-3.4.1** Payment `amount` matches invoice `amount` OR document partial payments policy (MVP: full pay only simplifies AC).
-- [ ] **AC-3.4.2** Recording payment sets invoice `status = paid` and `paid_at` in same transaction.
+- [x] **AC-3.4.2** Recording payment sets invoice `status = paid` and `paid_at` in same transaction.
 
 ---
 
@@ -166,8 +166,8 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-3.6.1** Plain key shown once on create; verify via hash on each v1 request.
-- [ ] **AC-3.6.2** Revoked keys return 401.
+- [x] **AC-3.6.1** Plain key shown once on create; verify via hash on each v1 request.
+- [x] **AC-3.6.2** Revoked keys return 401.
 
 ---
 
@@ -182,6 +182,8 @@ This document splits work into **microphases**. Each microphase has explicit **a
 - [ ] **AC-3.7.1** URL must be HTTPS in production (validate on save).
 - [x] **AC-3.7.2** Secret stored hashed or encrypted at rest (document choice).
 
+**Note (AC-3.7.1):** `assertValidWebhookEndpointUrl` is implemented in [`lib/webhooks/validate-endpoint-url.ts`](lib/webhooks/validate-endpoint-url.ts). It still needs to be called from webhook endpoint create/update when §11.1 ships; the checkbox above stays open until that save path exists.
+
 ---
 
 ## 4. Clients (UI + server actions / API)
@@ -190,9 +192,9 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-4.1.1** List shows only current user’s clients.
-- [ ] **AC-4.1.2** Empty state copy + CTA to create client.
-- [ ] **AC-4.1.3** Search or filter by name (optional AC; nice for 10+ clients).
+- [x] **AC-4.1.1** List shows only current user’s clients.
+- [x] **AC-4.1.2** Empty state copy + CTA to create client.
+- [x] **AC-4.1.3** Search or filter by name (optional AC; nice for 10+ clients).
 
 ---
 
@@ -200,9 +202,9 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-4.2.1** Required: `name`, `external_id`. Optional: contact, notes.
-- [ ] **AC-4.2.2** Duplicate `external_id` for same user returns validation error before DB unique violation.
-- [ ] **AC-4.2.3** Success redirects to client detail or list with toast.
+- [x] **AC-4.2.1** Required: `name`, `external_id`. Optional: contact, notes.
+- [x] **AC-4.2.2** Duplicate `external_id` for same user returns validation error before DB unique violation.
+- [x] **AC-4.2.3** Success redirects to client detail or list with toast.
 
 ---
 
@@ -210,9 +212,9 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-4.3.1** Edit preserves `external_id` immutability OR document migration path for API consumers (recommend immutable).
-- [ ] **AC-4.3.2** Delete blocked if active subscriptions exist OR cascades documented (recommend block with message).
-- [ ] **AC-4.3.3** Delete removes client row; subscriptions handled per rule above.
+- [x] **AC-4.3.1** Edit preserves `external_id` immutability OR document migration path for API consumers (recommend immutable).
+- [x] **AC-4.3.2** Delete blocked if active subscriptions exist OR cascades documented (recommend block with message).
+- [x] **AC-4.3.3** Delete removes client row; subscriptions handled per rule above.
 
 ---
 
@@ -371,6 +373,8 @@ This document splits work into **microphases**. Each microphase has explicit **a
 ## 11. Webhooks
 
 ### 11.1 — Endpoint CRUD (dashboard)
+
+**Prerequisite for AC-3.7.1:** On save, call `assertValidWebhookEndpointUrl` from `lib/webhooks/validate-endpoint-url.ts`.
 
 **ACs**
 
