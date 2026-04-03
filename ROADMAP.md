@@ -224,9 +224,9 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-5.1.1** Client picker scoped to user’s clients only.
-- [ ] **AC-5.1.2** On create, first invoice generated with `due_date` = first period end (see §6).
-- [ ] **AC-5.1.3** Initial `status` is `active` when no overdue invoice exists.
+- [x] **AC-5.1.1** Client picker scoped to user’s clients only.
+- [x] **AC-5.1.2** On create, first invoice generated with `due_date` = first period end (see §6).
+- [x] **AC-5.1.3** Initial `status` is `active` when no overdue invoice exists.
 
 ---
 
@@ -234,8 +234,8 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-5.2.1** Detail shows linked client, amount, currency, cycle, grace, status badge.
-- [ ] **AC-5.2.2** Related invoices listed chronologically.
+- [x] **AC-5.2.1** Detail shows linked client, amount, currency, cycle, grace, status badge.
+- [x] **AC-5.2.2** Related invoices listed chronologically.
 
 ---
 
@@ -243,8 +243,8 @@ This document splits work into **microphases**. Each microphase has explicit **a
 
 **ACs**
 
-- [ ] **AC-5.3.1** Changing amount affects **next** generated invoice only OR document proration (MVP: next cycle only).
-- [ ] **AC-5.3.2** Changing grace applies to future enforcement runs from save time forward.
+- [x] **AC-5.3.1** Changing amount affects **next** generated invoice only OR document proration (MVP: next cycle only).
+- [x] **AC-5.3.2** Changing grace applies to future enforcement runs from save time forward.
 
 ---
 

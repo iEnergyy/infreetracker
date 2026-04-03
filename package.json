@@ -17,7 +17,8 @@
     "auth:generate": "better-auth generate -y --config lib/auth.stub.ts --output db/schema/auth.ts",
     "verify:phase1": "tsx scripts/verify-phase1.ts",
     "verify:phase3": "tsx scripts/verify-phase3.ts",
-    "verify:phase3-payment-tx": "tsx scripts/verify-phase3-payment-tx.ts"
+    "verify:phase3-payment-tx": "tsx scripts/verify-phase3-payment-tx.ts",
+    "verify:phase5-subscription": "tsx scripts/verify-phase5-subscription-create.ts"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.5.6",

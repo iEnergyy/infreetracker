@@ -36,6 +36,14 @@ export default async function DashboardLayout({
             Clients
           </Link>
           <Link
+            href="/app/subscriptions"
+            className={cn(
+              "text-muted-foreground hover:text-foreground rounded-md px-2 py-1 transition-colors",
+            )}
+          >
+            Subscriptions
+          </Link>
+          <Link
             href="/app/settings/api-keys"
             className={cn(
               "text-muted-foreground hover:text-foreground rounded-md px-2 py-1 transition-colors",

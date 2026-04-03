@@ -22,6 +22,9 @@ export default async function AppHomePage() {
         <Button asChild variant="secondary">
           <Link href="/app/clients">Clients</Link>
         </Button>
+        <Button asChild variant="secondary">
+          <Link href="/app/subscriptions">Subscriptions</Link>
+        </Button>
         <SignOutButton />
       </div>
     </div>
